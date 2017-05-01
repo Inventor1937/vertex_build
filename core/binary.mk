@@ -217,6 +217,13 @@ endif
 ifdef LOCAL_CLANG_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)
 my_clang := $(strip $(LOCAL_CLANG_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)))
 endif
+# Issue warning if LOCAL_CLANG* is set to false and the local makefile is not found
+# in the exception project list.
+ifeq ($(my_clang),false)
+    ifeq ($(call find_in_local_clang_exception_projects,$(LOCAL_MODULE_MAKEFILE)),)
+        $(warning $(LOCAL_MODULE_MAKEFILE): $(LOCAL_MODULE): warning: LOCAL_CLANG is set to false)
+    endif
+endif
 
 my_sdclang := $(strip $(LOCAL_SDCLANG))
 
@@ -331,11 +338,27 @@ my_target_global_conlyflags := $($(LOCAL_2ND_ARCH_VAR_PREFIX)CLANG_TARGET_GLOBAL
 my_target_global_cppflags += $($(LOCAL_2ND_ARCH_VAR_PREFIX)CLANG_TARGET_GLOBAL_CPPFLAGS)
 my_target_global_ldflags := $($(LOCAL_2ND_ARCH_VAR_PREFIX)CLANG_TARGET_GLOBAL_LDFLAGS)
     ifeq ($(my_sdclang),true)
+        SDCLANG_PRECONFIGURED_FLAGS := -Wno-vectorizer-no-neon
+
+        ifeq ($(LOCAL_SDCLANG_LTO), true)
+            ifneq ($(LOCAL_MODULE_CLASS), STATIC_LIBRARIES)
+                SDCLANG_PRECONFIGURED_FLAGS += -fuse-ld=qcld -flto
+            endif
+        endif
+
+        # Bundle our setup and add it to cflags
+        my_target_global_cflags += $(SDCLANG_COMMON_FLAGS) $(SDCLANG_PRECONFIGURED_FLAGS)
+
+        # Pass all cflags and module specific LTO flags to linker
+        my_target_global_ldflags += $(my_target_global_cflags) $(LOCAL_SDCLANG_LTO_LDFLAGS)
+
+        SDCLANG_PRECONFIGURED_FLAGS :=
+
         ifeq ($(strip $(my_cc)),)
-            my_cc := $(my_cc_wrapper) $(SDCLANG_PATH)/clang $(SDLLVM_AE_FLAG) -Wno-vectorizer-no-neon
+            my_cc := $(my_cc_wrapper) $(SDCLANG_PATH)/clang
         endif
         ifeq ($(strip $(my_cxx)),)
-            my_cxx := $(my_cxx_wrapper) $(SDCLANG_PATH)/clang++ $(SDLLVM_AE_FLAG) -Wno-vectorizer-no-neon
+            my_cxx := $(my_cxx_wrapper) $(SDCLANG_PATH)/clang++
         endif
     endif
 else

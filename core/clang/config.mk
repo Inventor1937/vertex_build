@@ -14,8 +14,6 @@ LLVM_TBLGEN := $(BUILD_OUT_EXECUTABLES)/llvm-tblgen$(BUILD_EXECUTABLE_SUFFIX)
 # RenderScript-specific tools
 # These are tied to the version of LLVM directly in external/, so they might
 # trail the host prebuilts being used for the rest of the build process.
-RS_LLVM_PREBUILTS_VERSION := clang-2690385
-RS_LLVM_PREBUILTS_BASE := prebuilts/clang/host
 RS_LLVM_PREBUILTS_PATH := $(RS_LLVM_PREBUILTS_BASE)/$(BUILD_OS)-x86/$(RS_LLVM_PREBUILTS_VERSION)/bin
 RS_CLANG := $(RS_LLVM_PREBUILTS_PATH)/clang$(BUILD_EXECUTABLE_SUFFIX)
 RS_LLVM_AS := $(RS_LLVM_PREBUILTS_PATH)/llvm-as$(BUILD_EXECUTABLE_SUFFIX)
@@ -179,3 +177,20 @@ ifeq ($(HOST_PREFER_32_BIT),true)
 # We don't have 32-bit prebuilt libLLVM/libclang, so force to build them from source.
 FORCE_BUILD_LLVM_COMPONENTS := true
 endif
+
+# A list of projects that are allowed to set LOCAL_CLANG to false.
+LOCAL_CLANG_EXCEPTION_PROJECTS := \
+  device/huawei/angler/ \
+  device/lge/bullhead/ \
+  external/valgrind/ \
+  hardware/qcom/ \
+  $(INTERNAL_LOCAL_CLANG_EXCEPTION_PROJECTS)
+
+# Find $1 in the exception project list.
+define find_in_local_clang_exception_projects
+$(subst $(space),, \
+  $(foreach project,$(LOCAL_CLANG_EXCEPTION_PROJECTS), \
+    $(if $(filter $(project)%,$(1)),$(project)) \
+  ) \
+)
+endef

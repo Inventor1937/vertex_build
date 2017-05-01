@@ -120,7 +120,6 @@ TARGET_GLOBAL_LDFLAGS += \
 			-Wl,--hash-style=gnu \
 			-fuse-ld=gold \
 			-Wl,--icf=safe \
-			-Wl,--no-undefined-version \
 			$(arch_variant_ldflags)
 
 # Disable transitive dependency library symbol resolving.
@@ -131,7 +130,7 @@ TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 # More flags/options can be added here
 TARGET_RELEASE_CFLAGS := \
 			-DNDEBUG \
-			-O2 -g \
+			-O2 -g0 \
 			-Wstrict-aliasing=2 \
 			-fgcse-after-reload \
 			-frerun-cse-after-loop \

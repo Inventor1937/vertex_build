@@ -22,7 +22,6 @@
 
 PRODUCT_PACKAGES += \
     BlockedNumberProvider \
-    BookmarkProvider \
     CalendarProvider \
     CaptivePortalLogin \
     CertInstaller \
@@ -30,8 +29,6 @@ PRODUCT_PACKAGES += \
     DeskClock \
     DocumentsUI \
     DownloadProviderUi \
-    ExactCalculator \
-    Exchange2 \
     ExternalStorageProvider \
     FusedLocation \
     InputDevices \
@@ -39,11 +36,9 @@ PRODUCT_PACKAGES += \
     Keyguard \
     Launcher3 \
     ManagedProvisioning \
-    MtpDocumentsProvider \
     PacProcessor \
     libpac \
     PrintSpooler \
-    PrintRecommendationService \
     ProxyHandler \
     Settings \
     SharedStorageBackup \
